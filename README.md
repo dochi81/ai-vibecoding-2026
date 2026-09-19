@@ -65,8 +65,8 @@ AI - 주니어 /시니어 개발자
 
 #### 토스증권 OpenAPI
 https://www.tossinvest.com/ko/open-api
-토스앱 모바일 설치 가입
-토스증권 사용 설정
-토스증권 PC 웹사이트 동작
-사용중인 아이피를 토스증권 PC등록
-OPEN API 키 발급 후 Client ID, Client Secret 문자열 보관
+- 토스앱 모바일 설치 가입
+- 토스증권 사용 설정
+- 토스증권 PC 웹사이트 동작
+- 사용중인 아이피를 토스증권 PC등록
+- OPEN API 키 발급 후 Client ID, Client Secret 문자열 보관
