@@ -95,5 +95,7 @@ https://www.tossinvest.com/ko/open-api
  -'__main__py'  - 파이썬으로 실행될 때 가장먼저 실행되는 메인 함수 파일
  - '__pycache__' - 미리 만들어놓은 파이썬 실행 파일 (케시)
  - 'test'  소스코드 테스트를 위한 
- - env,example -환경 설정 예제파일 .example을 지우고 사용
- - __.env는 
+ - env,example - 환경 설정 예제파일 .example을 지우고 사용
+ - .env는 깃허브에 업로드 방지를 위해 .gitignore에 제외파일로 등록
+ - requirements.txt 파이썬 개발 환경 패키지 설치리스트 파일
+ - 'pip install -r requirements.txt '로 전부 설치
