@@ -84,6 +84,42 @@ def get_current_prices(
     return {"prices": [price.as_dict() for price in prices]}
 
 
+@router.get("/market/chart", tags=["market"])
+def get_price_chart(
+    symbol: str = Query(..., description="A single stock symbol, for example 005930."),
+    count: int = Query(30, ge=5, le=200, description="Number of daily closes to display."),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    """Return daily close history plus a freshly fetched current quote.
+
+    The current quote is intended for a browser poll, while historical points
+    remain daily candles.  This endpoint contains no order capability.
+    """
+    try:
+        market = TossMarketClient()
+        current_price = market.get_prices([symbol])[0]
+        candles = market.get_daily_candles(current_price.symbol, count=count)
+        save_price_snapshots(db, [current_price])
+        points = [
+            {
+                "timestamp": candle.observed_at.isoformat(),
+                "close_price": str(candle.close_price),
+            }
+            for candle in reversed(candles)
+        ]
+        return {
+            "symbol": current_price.symbol,
+            "currency": current_price.currency,
+            "current_price": str(current_price.last_price),
+            "observed_at": current_price.observed_at.isoformat(),
+            "interval": "1d",
+            "refresh_seconds": 15,
+            "points": points,
+        }
+    except (TossAuthError, TossMarketError, ValueError) as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+
+
 @router.get("/market/top5", tags=["market"])
 def get_market_top5() -> dict[str, object]:
     """Return public one-day top-gainer rankings; never a buy recommendation."""
