@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>자동매수 · TOSS AUTO TRADER v0.1</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="dashboard auto-buy-screen">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">PAPER ONLY · ONE SHOT</p>
+          <h1>자동매수 <span>v0.1</span></h1>
+        </div>
+        <div class="connection"><i id="connection-dot"></i><span id="connection-text">연결 확인 중</span></div>
+      </header>
+
+      <nav class="page-nav" aria-label="페이지 이동"><a href="/">시세 조회</a><a href="/dashboard">대시보드</a><a class="active" href="/auto-buy">자동매수</a></nav>
+
+      <section class="notice auto-buy-notice">
+        <strong>모의매매 전용</strong>
+        <span>실제 토스증권 주문은 전송하지 않습니다. 매수 신호가 확인되면 모의 매수 1회 후 자동 정지합니다.</span>
+      </section>
+
+      <section class="auto-buy-layout">
+        <section class="panel">
+          <div class="panel-heading"><div><p class="section-label">SETUP</p><h2>자동매수 시작</h2></div><span id="auto-buy-badge" class="runtime-stopped">대기</span></div>
+          <p class="hint">이동평균 5일선보다 현재가가 높을 때만 매수 신호로 판단합니다. 신호는 60초마다 확인합니다.</p>
+          <form id="auto-buy-form" class="auto-buy-form">
+            <label for="auto-buy-code">종목 코드</label>
+            <input id="auto-buy-code" value="005930" pattern="[A-Za-z0-9.\-]+" required />
+            <label for="auto-buy-quantity">모의 매수 수량</label>
+            <input id="auto-buy-quantity" type="number" value="1" min="1" max="100000" required />
+            <button id="auto-buy-start" type="submit">자동매수 시작</button>
+            <button id="auto-buy-stop" class="secondary" type="button">자동매수 정지</button>
+          </form>
+          <p id="auto-buy-message" class="hint" role="status">자동매수 대기 중입니다.</p>
+        </section>
+
+        <aside class="panel auto-buy-status-panel">
+          <p class="section-label">CURRENT STATUS</p>
+          <h2>감시 상태</h2>
+          <dl>
+            <div><dt>상태</dt><dd id="auto-buy-state">대기</dd></div>
+            <div><dt>종목</dt><dd id="auto-buy-stock">-</dd></div>
+            <div><dt>수량</dt><dd id="auto-buy-amount">-</dd></div>
+            <div><dt>최근 신호</dt><dd id="auto-buy-signal">-</dd></div>
+            <div><dt>확인 주기</dt><dd id="auto-buy-interval">60초</dd></div>
+          </dl>
+          <p class="auto-buy-safety">시작하려면 먼저 <a href="/dashboard">대시보드</a>에서 ‘모의 주문 허용’을 눌러야 합니다.</p>
+        </aside>
+      </section>
+    </main>
+    <script src="/static/auto-buy.js"></script>
+  </body>
+</html>

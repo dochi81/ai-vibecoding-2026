@@ -1,5 +1,6 @@
 """Application configuration loaded from the local .env file."""
 
+from decimal import Decimal
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -22,6 +23,7 @@ class Settings(BaseSettings):
     toss_api_base_url: str = "https://openapi.tossinvest.com"
     database_url: str
     live_trading: bool = False
+    paper_initial_cash: Decimal = Decimal("10000000")
 
 
 settings = Settings()

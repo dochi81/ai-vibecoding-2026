@@ -79,3 +79,53 @@ class TradeRecord(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
+
+class PaperAccount(Base):
+    """The single local cash account used by safe paper trading."""
+
+    __tablename__ = "paper_accounts"
+
+    id: Mapped[str] = mapped_column(String(30), primary_key=True, default="default")
+    initial_cash: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
+    cash_balance: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class StrategySignal(Base):
+    """An auditable record of every strategy evaluation."""
+
+    __tablename__ = "strategy_signals"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    stock_code: Mapped[str] = mapped_column(
+        ForeignKey("stocks.stock_code"), index=True, nullable=False
+    )
+    strategy_name: Mapped[str] = mapped_column(String(30), nullable=False)
+    current_price: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
+    moving_average: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
+    signal: Mapped[str] = mapped_column(String(4), nullable=False)
+    reason: Mapped[str] = mapped_column(String(200), nullable=False)
+    evaluated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class PaperPosition(Base):
+    """A position owned by the single local paper-trading account."""
+
+    __tablename__ = "paper_positions"
+
+    stock_code: Mapped[str] = mapped_column(
+        ForeignKey("stocks.stock_code"), primary_key=True
+    )
+    quantity: Mapped[int] = mapped_column(nullable=False)
+    average_cost: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
+    last_price: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )

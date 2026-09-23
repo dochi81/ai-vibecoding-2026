@@ -61,7 +61,6 @@ AI에게 코딩을 시키자. 제대로!
 
 - 파워쉘 콘솔 창에서 명령어로 수행하는 Codex
 
-
 ### 바이브 코딩
 
 - 제로샷 프롬프트 : 아무런 기초지식없이 대화로 바이브코딩
@@ -73,13 +72,13 @@ AI에게 코딩을 시키자. 제대로!
 #### 토스증권 OpenAPI
 
 https://www.tossinvest.com/ko/open-api
+
 - 토스앱 모바일 설치 가입
 - 토스증권 사용 설정
 - 토스증권 PC 웹사이트 동작
 - 사용중인 아이피를 토스증권 PC등록
 - OPEN API 키 발급 후 Client ID, Client Secret 문자열 보관
--https://developers.tossinvest.com/docs 
-
+  -https://developers.tossinvest.com/docs
 
 ### API 신청
 
@@ -91,11 +90,25 @@ https://www.tossinvest.com/ko/open-api
 
 ### 주식 자동매매 파이썬 프로그램 분석
 
- - '__init__py' - 일반적으로 파일만 생성 소스코드 x프로젝트 폴더가 pip로 설치할 수 있는 패키지화
- -'__main__py'  - 파이썬으로 실행될 때 가장먼저 실행되는 메인 함수 파일
- - '__pycache__' - 미리 만들어놓은 파이썬 실행 파일 (케시)
- - 'test'  소스코드 테스트를 위한 
- - env,example - 환경 설정 예제파일 .example을 지우고 사용
- - .env는 깃허브에 업로드 방지를 위해 .gitignore에 제외파일로 등록
- - requirements.txt 파이썬 개발 환경 패키지 설치리스트 파일
- - 'pip install -r requirements.txt '로 전부 설치
+- '__init__py' - 일반적으로 파일만 생성 소스코드 x프로젝트 폴더가 pip로 설치할 수 있는 패키지화
+  -'__main__py'  - 파이썬으로 실행될 때 가장먼저 실행되는 메인 함수 파일
+- '__pycache__' - 미리 만들어놓은 파이썬 실행 파일 (케시)
+- 'test'  소스코드 테스트를 위한
+- env,example - 환경 설정 예제파일 .example을 지우고 사용
+- .env는 깃허브에 업로드 방지를 위해 .gitignore에 제외파일로 등록
+- requirements.txt 파이썬 개발 환경 패키지 설치리스트 파일
+- 'pip install -r requirements.txt '로 전부 설치
+
+### HTTP 403문제
+
+- 토스 API
+
+#### 실행화면
+
+### favicon.ico 작업
+
+- https://favicon.com에서 원하는 이미지 png 다운로드
+- 구글에서 png to ico 로 검색하면 https://convertio.co에서 png를 ico로 변환. 다운로드
+- favicon.ico로 이름변경
+- static 폴더에 복사
+- index.html에 아래코드 추가

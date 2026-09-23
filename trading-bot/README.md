@@ -61,7 +61,7 @@ FastAPI가 처음 실행될 때 다음 테이블이 자동으로 생성됩니다
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -m pip install -r requirements.txt
-py -m uvicorn app.main:app --reload
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
 서버가 시작되면 다음 주소에서 확인합니다.

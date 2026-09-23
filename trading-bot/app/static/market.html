@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>시세 조회 · TOSS AUTO TRADER v0.1</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="dashboard quote-screen">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">TOSS SECURITIES · MARKET DATA</p>
+          <h1>시세 조회 <span>READ ONLY</span></h1>
+        </div>
+        <div class="connection"><i id="connection-dot"></i><span id="connection-text">연결 확인 중</span></div>
+      </header>
+
+      <nav class="page-nav" aria-label="페이지 이동"><a href="/dashboard">대시보드</a><a class="active" href="/">시세 조회</a><a href="/auto-buy">자동매수</a></nav>
+
+      <section class="quote-hero">
+        <p class="section-label">LIVE QUOTE</p>
+        <h2>원하는 종목의 현재가를 조회하세요.</h2>
+        <p>국내 종목코드 또는 미국 티커를 쉼표로 구분해 최대 200개까지 조회할 수 있습니다.</p>
+        <form id="quote-form" class="quote-form">
+          <label class="sr-only" for="symbols-input">종목 코드 또는 티커</label>
+          <input id="symbols-input" value="005930" placeholder="예: 005930, 000660 또는 AAPL, MSFT" required />
+          <button type="submit">시세 조회</button>
+        </form>
+        <p class="quote-example">예시: 삼성전자 <code>005930</code> · SK하이닉스 <code>000660</code> · Apple <code>AAPL</code></p>
+      </section>
+
+      <section class="top5-section" aria-live="polite">
+        <div class="panel-heading"><div><p class="section-label">MARKET RANKING</p><h2>오늘 상승 TOP5</h2></div><button id="top5-refresh" class="secondary">새로고침</button></div>
+        <p class="ranking-disclaimer">공개 시장 랭킹 참고용이며, 매수 추천 또는 투자 조언이 아닙니다.</p>
+        <div id="top5-message" class="quote-message">시장 TOP5를 불러오는 중입니다.</div>
+        <div id="top5-results" class="top5-grid"></div>
+      </section>
+
+      <section class="quote-results-section" aria-live="polite">
+        <div class="panel-heading"><div><p class="section-label">RESULT</p><h2>조회 결과</h2></div><span id="quote-count" class="result-count">조회 전</span></div>
+        <div id="quote-message" class="quote-message">종목 코드를 입력하고 시세 조회를 눌러주세요.</div>
+        <div id="quote-results" class="quote-grid"></div>
+      </section>
+
+      <p class="quote-note">조회한 시세는 자동매매 프로그램의 가격 이력으로도 저장됩니다. 이 화면은 조회 기능만 제공하며 주문을 생성하지 않습니다.</p>
+    </main>
+    <script src="/static/market.js"></script>
+  </body>
+</html>

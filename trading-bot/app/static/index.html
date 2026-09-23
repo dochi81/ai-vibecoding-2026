@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TOSS AUTO TRADER v0.1</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">TOSS SECURITIES · PAPER MODE</p>
+          <h1>TOSS AUTO TRADER <span>v0.1</span></h1>
+        </div>
+        <div class="connection"><i id="connection-dot"></i><span id="connection-text">연결 확인 중</span></div>
+      </header>
+
+      <nav class="page-nav" aria-label="페이지 이동"><a class="active" href="/dashboard">대시보드</a><a href="/">시세 조회</a><a href="/auto-buy">자동매수</a></nav>
+
+      <section class="notice" aria-label="trading mode">
+        <strong>모의매매 모드</strong>
+        <span>실제 주문 기능은 비활성화되어 있습니다.</span>
+      </section>
+
+      <section class="panel account-panel">
+        <div class="panel-heading">
+          <div><p class="section-label">ACCOUNT</p><h2>계좌 및 보유 종목</h2></div>
+          <div class="toolbar">
+            <select id="account-select" aria-label="계좌 선택"><option>계좌 불러오는 중</option></select>
+            <button id="account-refresh" class="secondary">새로고침</button>
+          </div>
+        </div>
+        <div class="metrics" id="holding-summary">
+          <div><span>평가 금액</span><strong>-</strong></div>
+          <div><span>매입 금액</span><strong>-</strong></div>
+          <div><span>평가 손익</span><strong>-</strong></div>
+          <div><span>당일 손익</span><strong>-</strong></div>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>종목</th><th>보유 수량</th><th>평가 금액</th><th>손익률</th></tr></thead><tbody id="holdings-body"><tr><td colspan="4" class="empty">계좌를 불러오는 중입니다.</td></tr></tbody></table>
+        </div>
+      </section>
+
+      <section class="panel daily-performance-panel" aria-live="polite">
+        <div class="panel-heading"><div><p class="section-label">PAPER PERFORMANCE</p><h2>일일 매매 성과</h2></div><span id="daily-performance-date" class="result-count">오늘</span></div>
+        <p class="hint">로컬 모의매매에서 오늘 체결된 거래만 집계합니다. 수수료·세금·미실현 손익은 포함하지 않습니다.</p>
+        <div class="metrics daily-metrics">
+          <div><span>체결 건수</span><strong id="daily-trade-count">-</strong></div>
+          <div><span>매수 금액</span><strong id="daily-buy-amount">-</strong></div>
+          <div><span>매도 금액</span><strong id="daily-sell-amount">-</strong></div>
+          <div><span>실현 손익</span><strong id="daily-realized-pl">-</strong></div>
+        </div>
+      </section>
+
+      <section class="two-column">
+        <section class="panel">
+          <div class="panel-heading"><div><p class="section-label">MARKET</p><h2>현재가 조회</h2></div></div>
+          <form id="price-form" class="price-form">
+            <label for="symbol-input">종목 코드</label>
+            <div><input id="symbol-input" value="005930" pattern="[A-Za-z0-9.\-]+" required /><button type="submit">조회</button></div>
+          </form>
+          <div id="price-result" class="price-result"><span>종목 코드를 입력해 현재가를 확인하세요.</span></div>
+        </section>
+
+        <section class="panel strategy-panel">
+          <div class="panel-heading"><div><p class="section-label">STRATEGY</p><h2>이동평균 전략</h2></div><span id="strategy-badge" class="pending">분석 대기</span></div>
+          <dl><div><dt>신호</dt><dd id="strategy-signal">-</dd></div><div><dt>5일 이동평균</dt><dd id="strategy-average">-</dd></div><div><dt>초기 모의 자금</dt><dd id="paper-initial-cash">-</dd></div><div><dt>총 가용자산</dt><dd id="paper-total-assets">-</dd></div><div><dt>사용 가능 현금</dt><dd id="paper-cash">-</dd></div><div><dt>주문 수량</dt><dd>1주</dd></div></dl>
+          <div class="controls"><span id="paper-runtime-badge" class="runtime-stopped">정지됨</span><button id="trader-start">모의 주문 허용</button><button id="trader-stop" class="secondary">모의 주문 잠금</button></div>
+          <p id="trader-status" class="hint">모의 주문 상태를 확인하는 중입니다.</p><p id="strategy-reason" class="hint">종목을 조회하면 5일 이동평균 전략을 분석합니다.</p>
+          <div class="paper-order-box"><p class="section-label">PAPER ORDER</p><form id="paper-order-form"><input id="paper-stock-code" value="005930" aria-label="모의 주문 종목 코드" required /><input id="paper-quantity" type="number" value="1" min="1" aria-label="모의 주문 수량" required /><button type="button" id="paper-buy" disabled>모의 매수</button><button type="button" id="paper-sell" class="secondary" disabled>모의 매도</button></form><p id="paper-order-result" class="hint">먼저 '모의 주문 허용'을 누르세요. 실제 토스 주문은 전송되지 않습니다.</p><div id="paper-positions" class="paper-positions">모의 보유 종목이 없습니다.</div></div>
+        </section>
+      </section>
+    </main>
+    <script src="/static/dashboard.js"></script>
+  </body>
+</html>
