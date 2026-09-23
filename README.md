@@ -71,6 +71,7 @@ AI에게 코딩을 시키자. 제대로!
 ### 자동매매 개발환경
 
 #### 토스증권 OpenAPI
+
 https://www.tossinvest.com/ko/open-api
 - 토스앱 모바일 설치 가입
 - 토스증권 사용 설정
@@ -81,7 +82,18 @@ https://www.tossinvest.com/ko/open-api
 
 
 ### API 신청
+
 - PC에서 투자하기 클릭
 - 토스앱 모바일로 로그인 인증
 - 오른쪽 하단 기어모양 아이콘 (설정)
 - Client ID, Client Secret, IP 추가()
+- card> ipconfig로 보안 아이피 확인 후 추가
+
+### 주식 자동매매 파이썬 프로그램 분석
+
+ - '__init__py' - 일반적으로 파일만 생성 소스코드 x프로젝트 폴더가 pip로 설치할 수 있는 패키지화
+ -'__main__py'  - 파이썬으로 실행될 때 가장먼저 실행되는 메인 함수 파일
+ - '__pycache__' - 미리 만들어놓은 파이썬 실행 파일 (케시)
+ - 'test'  소스코드 테스트를 위한 
+ - env,example -환경 설정 예제파일 .example을 지우고 사용
+ - __.env는 
