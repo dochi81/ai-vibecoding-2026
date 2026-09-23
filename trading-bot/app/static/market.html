@@ -14,7 +14,7 @@
           <p class="eyebrow">TOSS SECURITIES · MARKET DATA</p>
           <h1>시세 조회 <span>READ ONLY</span></h1>
         </div>
-        <div class="connection"><i id="connection-dot"></i><span id="connection-text">연결 확인 중</span></div>
+        <div class="topbar-actions"><div class="connection"><i id="connection-dot"></i><span id="connection-text">연결 확인 중</span></div><button id="connection-check" class="secondary compact" type="button">토스 연결 확인</button><button id="paper-reset" class="secondary compact danger-button" type="button">페이퍼 초기화</button></div>
       </header>
 
       <nav class="page-nav" aria-label="페이지 이동"><a href="/dashboard">대시보드</a><a class="active" href="/">시세 조회</a><a href="/auto-buy">자동매수</a></nav>
@@ -53,6 +53,7 @@
 
       <p class="quote-note">조회한 시세는 자동매매 프로그램의 가격 이력으로도 저장됩니다. 이 화면은 조회 기능만 제공하며 주문을 생성하지 않습니다.</p>
     </main>
+    <script src="/static/stock-autocomplete.js"></script>
     <script src="/static/market.js"></script>
   </body>
 </html>

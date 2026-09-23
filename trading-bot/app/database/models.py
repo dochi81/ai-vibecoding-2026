@@ -96,6 +96,21 @@ class PaperAccount(Base):
     )
 
 
+class PaperTradingSettings(Base):
+    """Safety limits for the local paper-trading account."""
+
+    __tablename__ = "paper_trading_settings"
+
+    id: Mapped[str] = mapped_column(String(30), primary_key=True, default="default")
+    max_order_amount: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
+    reserve_cash_rate: Mapped[Decimal] = mapped_column(
+        Numeric(5, 4), nullable=False, default=Decimal("0.10")
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
 class StrategySignal(Base):
     """An auditable record of every strategy evaluation."""
 

@@ -14,7 +14,7 @@
           <p class="eyebrow">TOSS SECURITIES · PAPER MODE</p>
           <h1>TOSS AUTO TRADER <span>v0.1</span></h1>
         </div>
-        <div class="connection"><i id="connection-dot"></i><span id="connection-text">연결 확인 중</span></div>
+        <div class="topbar-actions"><div class="connection"><i id="connection-dot"></i><span id="connection-text">연결 확인 중</span></div><button id="connection-check" class="secondary compact" type="button">토스 연결 확인</button><button id="paper-reset" class="secondary compact danger-button" type="button">페이퍼 초기화</button></div>
       </header>
 
       <nav class="page-nav" aria-label="페이지 이동"><a class="active" href="/dashboard">대시보드</a><a href="/">시세 조회</a><a href="/auto-buy">자동매수</a></nav>
@@ -59,7 +59,7 @@
           <div class="panel-heading"><div><p class="section-label">MARKET</p><h2>현재가 조회</h2></div></div>
           <form id="price-form" class="price-form">
             <label for="symbol-input">종목 코드</label>
-            <div><input id="symbol-input" value="005930" pattern="[A-Za-z0-9.\-]+" required /><button type="submit">조회</button></div>
+            <div><input id="symbol-input" value="삼성전자" placeholder="예: 삼성전자, 성전자 또는 005930" required /><button type="submit">조회</button></div>
           </form>
           <div id="price-result" class="price-result"><span>종목 코드를 입력해 현재가를 확인하세요.</span></div>
         </section>
@@ -72,7 +72,21 @@
           <div class="paper-order-box"><p class="section-label">PAPER ORDER</p><form id="paper-order-form"><input id="paper-stock-code" value="005930" aria-label="모의 주문 종목 코드" required /><input id="paper-quantity" type="number" value="1" min="1" aria-label="모의 주문 수량" required /><button type="button" id="paper-buy" disabled>모의 매수</button><button type="button" id="paper-sell" class="secondary" disabled>모의 매도</button></form><p id="paper-order-result" class="hint">먼저 '모의 주문 허용'을 누르세요. 실제 토스 주문은 전송되지 않습니다.</p><div id="paper-positions" class="paper-positions">모의 보유 종목이 없습니다.</div></div>
         </section>
       </section>
+      <section class="panel candidate-panel" aria-live="polite">
+        <div class="panel-heading"><div><p class="section-label">PAPER CANDIDATES</p><h2>가용금액 내 관심 후보</h2></div><button id="candidate-refresh" class="secondary" type="button">후보 새로고침</button></div>
+        <p id="candidate-disclaimer" class="ranking-disclaimer">토스증권 공개 랭킹과 이동평균 규칙을 바탕으로 한 참고용 정보입니다. 투자 추천이 아닙니다.</p>
+        <p id="candidate-budget" class="hint">가용 거래 한도를 불러오는 중입니다.</p>
+        <div id="candidate-results" class="candidate-grid"></div>
+      </section>
+
+      <section class="panel paper-limit-panel">
+        <div class="panel-heading"><div><p class="section-label">PAPER SAFETY</p><h2>1회 거래 한도</h2></div></div>
+        <p class="hint">직접 설정한 한도와 남은 가상 현금의 90% 중 작은 금액까지만 거래됩니다.</p>
+        <div class="paper-limit-control"><label for="paper-order-limit">최대 거래금액 (원)</label><div><input id="paper-order-limit" type="number" min="1" step="1000" required /><button id="paper-limit-save" type="button" class="secondary">한도 저장</button></div></div>
+        <p id="paper-limit-hint" class="hint">한도를 불러오는 중입니다.</p>
+      </section>
     </main>
+    <script src="/static/stock-autocomplete.js"></script>
     <script src="/static/dashboard.js"></script>
   </body>
 </html>

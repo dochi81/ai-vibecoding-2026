@@ -26,14 +26,16 @@ class MarketPrice:
     last_price: Decimal
     currency: str
     observed_at: datetime
+    name: str | None = None
 
-    def as_dict(self) -> dict[str, str]:
+    def as_dict(self) -> dict[str, str | None]:
         """Return JSON-ready price data without broker credentials."""
         return {
             "symbol": self.symbol,
             "last_price": str(self.last_price),
             "currency": self.currency,
             "observed_at": self.observed_at.isoformat(),
+            "name": self.name,
         }
 
 
@@ -92,7 +94,8 @@ class TossMarketClient:
 
         try:
             results = response.json()["result"]
-            return [self._parse_price(item) for item in results]
+            names = self._get_stock_names(normalized_symbols)
+            return [self._parse_price(item, names.get(str(item["symbol"]))) for item in results]
         except (KeyError, TypeError, ValueError, InvalidOperation) as error:
             raise TossMarketError("Toss current-price response had an unexpected format.") from error
 
@@ -226,6 +229,21 @@ class TossMarketClient:
         except httpx.RequestError as error:
             raise TossMarketError("Could not reach Toss stock-info API.") from error
 
+    def _get_stock_names(self, symbols: list[str]) -> dict[str, str]:
+        """Look up display names for an already validated symbol list."""
+        response = self._request_stocks(symbols)
+        if response.status_code == 401:
+            response = self._request_stocks(symbols, force_refresh=True)
+        if response.status_code != 200:
+            raise TossMarketError(f"Toss stock-info request failed (HTTP {response.status_code}).")
+        try:
+            return {
+                str(stock["symbol"]): str(stock["name"])
+                for stock in response.json()["result"]
+            }
+        except (KeyError, TypeError, ValueError) as error:
+            raise TossMarketError("Toss stock-info response had an unexpected format.") from error
+
     @staticmethod
     def _validate_symbols(symbols: list[str]) -> list[str]:
         cleaned = [symbol.strip().upper() for symbol in symbols if symbol.strip()]
@@ -236,10 +254,11 @@ class TossMarketClient:
         return cleaned
 
     @staticmethod
-    def _parse_price(item: dict[str, str]) -> MarketPrice:
+    def _parse_price(item: dict[str, str], name: str | None = None) -> MarketPrice:
         return MarketPrice(
             symbol=item["symbol"],
             last_price=Decimal(item["lastPrice"]),
             currency=item["currency"],
             observed_at=datetime.fromisoformat(item["timestamp"]),
+            name=name,
         )

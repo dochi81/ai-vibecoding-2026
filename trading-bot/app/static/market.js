@@ -1,9 +1,15 @@
 const $ = (selector) => document.querySelector(selector);
+const symbolsInput = $("#symbols-input");
+symbolsInput.value = "삼성전자";
+symbolsInput.placeholder = "예: 삼성전자, SK하이닉스 또는 005930";
+document.querySelector(".quote-hero h2").textContent = "회사명으로 현재가를 조회하세요";
+document.querySelector(".quote-hero > p:not(.section-label):not(.quote-example)").textContent = "회사명 또는 종목코드를 입력할 수 있습니다. 여러 종목은 쉼표로 구분하세요.";
+document.querySelector(".quote-example").innerHTML = "예시: <code>삼성전자</code> · <code>SK하이닉스</code> · <code>005930</code> · <code>AAPL</code>";
 const formatPrice = (value, currency) => new Intl.NumberFormat("ko-KR", { style: "currency", currency: currency || "KRW", maximumFractionDigits: 2 }).format(Number(value));
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
 
-async function api(path) {
-  const response = await fetch(path);
+async function api(path, options = {}) {
+  const response = await fetch(path, options);
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.detail || "시세를 가져오지 못했습니다.");
   return payload;
@@ -19,13 +25,52 @@ async function loadHealth() {
   } catch { $("#connection-text").textContent = "연결 확인 실패"; }
 }
 
+async function verifyTossConnection() {
+  const button = $("#connection-check");
+  button.disabled = true;
+  button.textContent = "확인 중";
+  try {
+    await api("/auth/verify", { method: "POST" });
+    $(".connection").classList.add("connected");
+    $("#connection-text").textContent = "토스 인증 연결됨";
+  } catch (error) {
+    $(".connection").classList.remove("connected");
+    $("#connection-text").textContent = "토스 연결 실패";
+    alert(error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "토스 연결 확인";
+  }
+}
+
+async function resetPaperTrading() {
+  if (!window.confirm("모의 잔고, 보유종목, 모의 주문과 거래기록을 모두 초기화할까요? 실제 토스 계좌에는 영향을 주지 않습니다.")) return;
+  const button = $("#paper-reset");
+  button.disabled = true;
+  try {
+    const result = await api("/paper/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: true }),
+    });
+    alert(result.message);
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function renderPrices(prices) {
   $("#quote-count").textContent = `${prices.length}개 종목`;
   $("#quote-results").innerHTML = prices.map((price) => `
     <article class="quote-card">
-      <p class="quote-symbol">${escapeHtml(price.symbol)}</p>
-      <strong>${formatPrice(price.last_price, price.currency)}</strong>
-      <p class="quote-currency">${escapeHtml(price.currency)}</p>
+      <dl class="quote-fields">
+        <div><dt>품목번호</dt><dd>${escapeHtml(price.symbol)}</dd></div>
+        <div><dt>주식명</dt><dd>${escapeHtml(price.name || "-")}</dd></div>
+        <div><dt>현재가</dt><dd>${formatPrice(price.last_price, price.currency)}</dd></div>
+        <div><dt>통화</dt><dd>${escapeHtml(price.currency)}</dd></div>
+      </dl>
       <time>${escapeHtml(price.observed_at.replace("T", " "))}</time>
     </article>`).join("");
 }
@@ -98,7 +143,7 @@ async function loadChart(symbol = activeChartSymbol) {
   try {
     const chart = await api(`/market/chart?symbol=${encodeURIComponent(activeChartSymbol)}&count=30`);
     renderPriceChart(chart);
-    $("#price-chart-title").textContent = `${chart.symbol} 가격 흐름`;
+    $("#price-chart-title").textContent = `${chart.symbol} · ${chart.name || "-"} 가격 흐름`;
     $("#chart-current-price").textContent = formatPrice(chart.current_price, chart.currency);
     $("#chart-observed-at").textContent = `현재가 ${String(chart.observed_at).replace("T", " ")}`;
     $("#price-chart-status").textContent = `${chart.refresh_seconds}초마다 현재가 갱신`;
@@ -128,6 +173,8 @@ $("#quote-form").addEventListener("submit", async (event) => {
 });
 
 $("#top5-refresh").addEventListener("click", loadTop5);
+$("#connection-check").addEventListener("click", verifyTossConnection);
+$("#paper-reset").addEventListener("click", resetPaperTrading);
 
 loadHealth(); loadTop5(); loadChart();
 setInterval(() => loadChart(), 15000);

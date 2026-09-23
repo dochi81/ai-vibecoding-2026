@@ -1,4 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
+const dashboardSymbolInput = $("#symbol-input");
+dashboardSymbolInput.placeholder = "예: 삼성전자, 성전자 또는 005930";
+document.querySelector("#price-form label").textContent = "회사명 또는 종목코드";
 const toNumber = (value) => {
   if (value == null || value === "") return null;
   const number = Number(String(value).replaceAll(",", ""));
@@ -29,6 +32,43 @@ async function loadHealth() {
       $("#connection-text").textContent = "API · DB 연결됨";
     }
   } catch { $("#connection-text").textContent = "연결 확인 실패"; }
+}
+
+async function verifyTossConnection() {
+  const button = $("#connection-check");
+  button.disabled = true;
+  button.textContent = "확인 중";
+  try {
+    await api("/auth/verify", { method: "POST" });
+    $(".connection").classList.add("connected");
+    $("#connection-text").textContent = "토스 인증 연결됨";
+  } catch (error) {
+    $(".connection").classList.remove("connected");
+    $("#connection-text").textContent = "토스 연결 실패";
+    alert(error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "토스 연결 확인";
+  }
+}
+
+async function resetPaperTrading() {
+  if (!window.confirm("모의 잔고, 보유종목, 모의 주문과 거래기록을 모두 초기화할까요? 실제 토스 계좌에는 영향을 주지 않습니다.")) return;
+  const button = $("#paper-reset");
+  button.disabled = true;
+  try {
+    const result = await api("/paper/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: true }),
+    });
+    await Promise.all([refreshTraderStatus(), loadPaperPositions(), loadDailyPerformance()]);
+    $("#paper-order-result").textContent = result.message;
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function renderSummary(summary = {}) {
@@ -88,9 +128,69 @@ function renderDailyPerformance(performance) {
   realized.className = numeric > 0 ? "positive" : numeric < 0 ? "negative" : "";
 }
 
+function renderPaperSettings(settings = {}) {
+  const input = $("#paper-order-limit");
+  if (!input) return;
+  input.value = toNumber(settings.max_order_amount) ?? "";
+  const maxBuy = money(settings.max_buy_amount);
+  const cash = money(settings.cash_balance);
+  $("#paper-limit-hint").textContent = `현재 1회 매수 가능 금액: ${maxBuy} · 남은 가상 현금: ${cash} · 최소 10% 현금 보유`;
+}
+
+async function loadPaperSettings() {
+  try { renderPaperSettings(await api("/paper-settings")); }
+  catch (error) { $("#paper-limit-hint").textContent = error.message; }
+}
+
+async function savePaperSettings() {
+  const amount = Number($("#paper-order-limit").value);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    $("#paper-limit-hint").textContent = "1원 이상의 거래 한도를 입력하세요.";
+    return;
+  }
+  const button = $("#paper-limit-save");
+  button.disabled = true;
+  try {
+    renderPaperSettings(await api("/paper-settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ max_order_amount: amount }),
+    }));
+  } catch (error) {
+    $("#paper-limit-hint").textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
 async function loadDailyPerformance() {
   try { renderDailyPerformance(await api("/paper-performance/daily")); }
   catch (error) { $("#daily-realized-pl").textContent = error.message; }
+}
+
+function renderCandidates(payload) {
+  $("#candidate-disclaimer").textContent = payload.disclaimer;
+  const budget = payload.budget || {};
+  $("#candidate-budget").textContent = `현재 1회 매수 가능 금액: ${money(budget.max_buy_amount)} · 설정 거래 한도: ${money(budget.max_order_amount)}`;
+  const container = $("#candidate-results");
+  if (!payload.items?.length) {
+    container.innerHTML = '<p class="hint">표시할 관심 후보가 없습니다.</p>';
+    return;
+  }
+  container.innerHTML = payload.items.map((item) => {
+    const candidateClass = item.is_candidate ? "candidate-ready" : "candidate-watch";
+    const status = item.is_candidate ? "관심 후보" : "관망";
+    const signalClass = item.signal === "BUY" ? "positive" : item.signal === "SELL" ? "negative" : "";
+    return `<article class="candidate-card ${candidateClass}"><div class="candidate-heading"><span>TOP ${item.rank}</span><strong>${escapeHtml(item.name)}</strong></div><p class="candidate-code">${escapeHtml(item.stock_code)}</p><dl><div><dt>현재가</dt><dd>${money(item.current_price)}</dd></div><div><dt>5일선</dt><dd>${money(item.moving_average)}</dd></div><div><dt>신호</dt><dd class="${signalClass}">${escapeHtml(item.signal)}</dd></div><div><dt>가능 수량</dt><dd>${number(item.max_quantity)}주</dd></div></dl><p class="candidate-status">${status} · ${Number(item.change_rate).toFixed(2)}%</p><p class="candidate-note">${escapeHtml(item.note)}</p></article>`;
+  }).join("");
+}
+
+async function loadCandidates() {
+  const button = $("#candidate-refresh");
+  button.disabled = true;
+  try { renderCandidates(await api("/market/candidates")); }
+  catch (error) { $("#candidate-results").innerHTML = `<p class="hint">${escapeHtml(error.message)}</p>`; }
+  finally { button.disabled = false; }
 }
 
 function renderStrategy(decision) {
@@ -109,9 +209,9 @@ async function analyzeStrategy(symbol) {
 }
 
 $("#price-form").addEventListener("submit", async (event) => {
-  event.preventDefault(); const symbol = $("#symbol-input").value.trim(); const result = $("#price-result");
+  event.preventDefault(); const symbol = dashboardSymbolInput.value.trim(); const result = $("#price-result");
   result.innerHTML = "<span>현재가를 조회하는 중입니다.</span>";
-  try { const { prices } = await api(`/market/prices?symbols=${encodeURIComponent(symbol)}`); const price = prices[0]; result.innerHTML = `<span>${escapeHtml(price.symbol)} · ${escapeHtml(price.observed_at.replace("T", " "))}</span><strong>${money(price.last_price)}</strong>`; await analyzeStrategy(price.symbol); }
+  try { const { prices } = await api(`/market/prices?symbols=${encodeURIComponent(symbol)}`); const price = prices[0]; result.innerHTML = `<dl class="price-fields"><div><dt>품목번호</dt><dd>${escapeHtml(price.symbol)}</dd></div><div><dt>주식명</dt><dd>${escapeHtml(price.name || "-")}</dd></div><div><dt>현재가</dt><dd>${money(price.last_price)}</dd></div><div><dt>통화</dt><dd>${escapeHtml(price.currency)}</dd></div></dl><span>${escapeHtml(price.observed_at.replace("T", " "))}</span>`; await analyzeStrategy(price.symbol); }
   catch (error) { result.innerHTML = `<span>${escapeHtml(error.message)}</span>`; }
 });
 $("#account-select").addEventListener("change", loadHoldings);
@@ -129,6 +229,7 @@ function renderTraderStatus(status) {
   $("#paper-initial-cash").textContent = money(status.paper_account?.initial_cash);
   $("#paper-total-assets").textContent = money(status.paper_account?.total_available_assets);
   $("#paper-cash").textContent = money(status.paper_account?.cash_balance);
+  renderPaperSettings(status.paper_settings);
 }
 
 async function refreshTraderStatus() {
@@ -156,6 +257,7 @@ async function submitPaperOrder(side) {
     const payload = await api("/paper-orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ side, stock_code: stockCode, quantity }) });
     $("#paper-cash").textContent = money(payload.paper_account.cash_balance);
     $("#paper-total-assets").textContent = money(payload.paper_account.total_available_assets);
+    renderPaperSettings(payload.paper_settings);
     renderPaperPositions(payload.positions);
     await loadDailyPerformance();
     result.textContent = `모의 ${payload.order.side === "BUY" ? "매수" : "매도"} 완료: ${payload.order.stock_code} ${payload.order.quantity}주 · ${money(payload.order.execution_price)}`;
@@ -170,9 +272,15 @@ $("#trader-stop").addEventListener("click", async () => {
   try { renderTraderStatus(await api("/trader/stop", { method: "POST" })); }
   catch (error) { $("#trader-status").textContent = error.message; }
 });
+$("#connection-check").addEventListener("click", verifyTossConnection);
+$("#paper-reset").addEventListener("click", resetPaperTrading);
+$("#paper-limit-save").addEventListener("click", savePaperSettings);
+$("#candidate-refresh").addEventListener("click", loadCandidates);
 $("#paper-buy").addEventListener("click", () => submitPaperOrder("BUY"));
 $("#paper-sell").addEventListener("click", () => submitPaperOrder("SELL"));
 loadHealth(); loadAccounts();
 refreshTraderStatus();
 loadPaperPositions();
 loadDailyPerformance();
+loadPaperSettings();
+loadCandidates();

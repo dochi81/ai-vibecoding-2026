@@ -103,6 +103,9 @@ https://www.tossinvest.com/ko/open-api
 
 - 토스 API
 
+
+
+
 #### 실행화면
 
 ### favicon.ico 작업
@@ -112,3 +115,25 @@ https://www.tossinvest.com/ko/open-api
 - favicon.ico로 이름변경
 - static 폴더에 복사
 - index.html에 아래코드 추가
+
+
+
+- 결과 메시지 화면
+- 소스
+
+### CLI Codex
+- 파워쉘, 콘솔 창에서 명령어로 수행하는 codex
+
+### 바이브 코딩
+ - 제로샷 프롬프트: 아무런 기초지식 없이 대화로 바이브 코딩
+ - 원샷 프롬프트 : 적어도 한줄의 요구사항을 작성해서 바이브 코딩
+ - 퓨샷 프롬프트: PRD를 작성해서 바이브 코딩
+
+ ### 프롬프트 사용법
+ 
+ - 이미지를 캡쳐해서 복사/붙여넣기 후 프롬프트 사용
+ - 특정 소스코드를 선택한 뒤 우클릭으로 Add to Codex Thread 선택 훠 프롬프트 사용
+
+ ### 주식 자동매매 개발 환경
+
+ 

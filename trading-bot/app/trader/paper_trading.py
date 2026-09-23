@@ -5,7 +5,14 @@ from decimal import Decimal
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.database.models import Order, PaperAccount, PaperPosition, Stock, TradeRecord
+from app.database.models import (
+    Order,
+    PaperAccount,
+    PaperPosition,
+    PaperTradingSettings,
+    Stock,
+    TradeRecord,
+)
 from app.database.repository import get_or_create_paper_account
 
 
@@ -36,6 +43,11 @@ def execute_paper_order(
     account = db.execute(
         select(PaperAccount).where(PaperAccount.id == "default").with_for_update()
     ).scalar_one()
+    trading_settings = db.execute(
+        select(PaperTradingSettings)
+        .where(PaperTradingSettings.id == "default")
+        .with_for_update()
+    ).scalar_one()
     position = db.execute(
         select(PaperPosition)
         .where(PaperPosition.stock_code == normalized_code)
@@ -49,7 +61,17 @@ def execute_paper_order(
             db.add(Stock(stock_code=normalized_code))
             db.flush()
 
+        if amount > trading_settings.max_order_amount:
+            raise PaperTradingError("1회 거래금액이 설정한 최대 거래 한도를 초과했습니다.")
+
         if normalized_side == "BUY":
+            safe_buy_ceiling = account.cash_balance * (
+                Decimal("1") - trading_settings.reserve_cash_rate
+            )
+            if amount > safe_buy_ceiling:
+                raise PaperTradingError(
+                    "올인 방지 규칙으로 남은 가상 현금의 90%까지만 매수할 수 있습니다."
+                )
             if account.cash_balance < amount:
                 raise PaperTradingError("모의 가용 현금이 부족합니다.")
             if position is None:
